@@ -158,6 +158,10 @@ export default function Admin() {
     }
   };
 
+  function handleback() {
+    router.navigate("/");
+  }
+
   // --- RENDERIZAÇÃO DO CABEÇALHO ---
   // Mantemos como uma função que retorna o JSX
   const renderFormHeader = () => {

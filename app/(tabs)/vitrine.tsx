@@ -1,21 +1,45 @@
-import { View, Text, FlatList, Image, StyleSheet, Button, TouchableOpacity } from 'react-native';
-import { useEffect, useState } from 'react';
+import { View, Text, FlatList, Image, StyleSheet, Button, ActivityIndicator } from 'react-native';
+import { useCallback, useState } from 'react'; // Adicionado useCallback
 import { supabase } from '../../lib/supabase';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router'; // Adicionado useFocusEffect
 
 export default function VitrineScreen() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); // Adicionei loading para ficar mais fluido
   const router = useRouter();
 
   const fetchProducts = async () => {
-    const { data, error } = await supabase.from('products').select('*');
-    if (error) console.log(error);
-    else setProducts(data);
+    // setLoading(true); // Opcional: Se quiser ver o loading toda vez que entrar
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true }); // Ordenei para os novos aparecerem no fim (ou mude para false para ver primeiro)
+      
+      if (error) console.log(error);
+      else setProducts(data || []);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  // --- A MÁGICA ACONTECE AQUI ---
+  // Substituímos o useEffect pelo useFocusEffect
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+    }, [])
+  );
+
+  if (loading && products.length === 0) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#008080" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -27,7 +51,7 @@ export default function VitrineScreen() {
       
       <FlatList
         data={products}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item: any) => item.id.toString()}
         contentContainerStyle={{ paddingBottom: 20 }}
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -37,7 +61,7 @@ export default function VitrineScreen() {
                 <Image 
                   source={{ uri: item.image }} 
                   style={styles.img} 
-                  resizeMode="contain" // Isso garante que o pote não seja cortado
+                  resizeMode="contain" 
                 />
               ) : (
                 <View style={[styles.img, {backgroundColor: '#ccc'}]} />
@@ -84,20 +108,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 50, 
     paddingBottom: 15,
-    backgroundColor: '#eefffe', // Fundo contínuo (sem barra branca)
+    backgroundColor: '#eefffe', 
   },
 
   headerTitle: { 
     fontSize: 22, 
     fontWeight: 'bold', 
-    color: '#008080' // Título na cor da marca
+    color: '#008080' 
   },
   
   card: { 
     backgroundColor: 'white', 
     marginHorizontal: 15, 
     marginTop: 15, 
-    borderRadius: 20, // Bordas mais arredondadas (igual ao login)
+    borderRadius: 20, 
     padding: 15,
     elevation: 3, 
     shadowColor: '#000', 
@@ -148,15 +172,15 @@ const styles = StyleSheet.create({
 
   price: { 
     fontSize: 22, 
-    color: '#008080', // Preço Verde Petróleo
+    color: '#008080', 
     fontWeight: 'bold' 
   },
   
   buyButton: {
-    backgroundColor: '#008080', // Botão Verde Petróleo
+    backgroundColor: '#008080', 
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 12, // Arredondado igual ao login
+    borderRadius: 12, 
     shadowColor: '#008080',
     shadowOpacity: 0.3,
     shadowRadius: 4,
