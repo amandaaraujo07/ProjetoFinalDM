@@ -1,98 +1,151 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function LoginScreen() {
+  const router = useRouter();
+  const [senha, setSenha] = useState('');
 
-export default function HomeScreen() {
+  const entrarComoAdmin = () => {
+    if (senha === '1234') {
+      router.push('/admin');
+    } else {
+      Alert.alert('Acesso Negado', 'Senha incorreta!');
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        
+        {/* LOGO */}
+        <Image 
+          source={require('../../assets/images/logo1.png')} 
+          style={styles.logo}
+          resizeMode="contain"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+        
+        {/* Bloco Cliente */}
+        <View style={styles.card}>
+          <View style={styles.headerRow}>
+            <Text style={styles.cardTitle}>Área do Cliente</Text>
+          </View>
+          <Text style={styles.cardSubtitle}>Veja nossas ofertas e novidades.</Text>
+          
+          <TouchableOpacity style={styles.btnCliente} onPress={() => router.push('/vitrine')}>
+            <Text style={styles.btnText}>Ver Vitrine</Text>
+          </TouchableOpacity>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Bloco Gerente */}
+        <View style={[styles.card, styles.cardAdmin]}>
+          <Text style={styles.cardTitle}>Área Restrita</Text>
+          <Text style={styles.cardSubtitle}>Acesso exclusivo para gerência.</Text>
+          
+          <TextInput 
+            placeholder="Digite a senha..." 
+            secureTextEntry 
+            value={senha}
+            onChangeText={setSenha}
+            style={styles.input}
+            placeholderTextColor="#888"
+          />
+          
+          <TouchableOpacity style={styles.btnAdmin} onPress={entrarComoAdmin}>
+            <Text style={styles.btnText}>Entrar no Gerenciamento</Text>
+          </TouchableOpacity>
+        </View>
+
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  scrollContainer: {
+    flexGrow: 1,
+    backgroundColor: '#eefffe', // Cor de fundo (Verde Menta Suave)
+  },
+  
+  container: { 
+    flex: 1, 
+    padding: 25, 
+    justifyContent: 'center', 
+    backgroundColor: '#eefffe' // Cor de fundo repetida para garantir
+  },
+
+  logo: {
+    width: '100%',
+    height: 220, 
+    alignSelf: 'center',
+    marginBottom: 30,
+    transform: [{ scale: 1.2 }] // O zoom para ela parecer maior
+  },
+
+  card: { 
+    backgroundColor: '#ffffff', 
+    borderRadius: 20, 
+    padding: 25,
+    marginBottom: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5, 
+  },
+  
+  cardAdmin: {
+    marginTop: 10,
+    borderLeftWidth: 5,
+    borderLeftColor: '#264653' // Detalhe lateral azul escuro
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333333',
+    marginBottom: 5
+  },
+  
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 20
+  },
+
+  input: { 
+    backgroundColor: '#f0f0f0',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: 'transparent'
+  },
+
+  btnCliente: {
+    backgroundColor: '#008080', // Verde Petróleo (Teal)
+    paddingVertical: 15,
+    borderRadius: 12,
     alignItems: 'center',
-    gap: 8,
+    shadowColor: '#008080',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 4
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+
+  btnAdmin: {
+    backgroundColor: '#264653', // Azul Escuro
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+
+  btnText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase'
+  }
 });
